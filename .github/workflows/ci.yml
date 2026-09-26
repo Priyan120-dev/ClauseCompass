@@ -36,6 +36,7 @@ jobs:
     - name: Run Pytest with Coverage
       env:
         DEMO_MODE: "true"
+        PYTHONPATH: "."
       run: |
         pytest --cov=app --cov-report=term-missing --cov-report=xml tests/
 
