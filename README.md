@@ -49,7 +49,7 @@ graph TD
         VerifiedReport --> PrintCSS[Print View Stylesheet]
     end
 
-    VerifiedReport & MissingCheck & GroundedQA & CompareEngine --> UI[WCAG 2.1 AA 3-Tab UI: Understand | Ask | Compare]
+    VerifiedReport & MissingCheck & GroundedQA & CompareEngine --> UI[WCAG 2.1 AA 3-Tab UI: Understand, Ask, Compare]
     ICS & Brief & PrintCSS --> UI
 ```
 

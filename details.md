@@ -41,7 +41,7 @@ If a point is not explicitly addressed in the contract, the system states **`NOT
 flowchart TD
     subgraph ClientLayer [Client Interface (WCAG 2.1 AA Compliant)]
         UI[Vanilla HTML5 + CSS3 + ES Modules]
-        Tabs[3-Tab Workspace: Understand | Ask | Compare]
+        Tabs[3-Tab Workspace: Understand, Ask, Compare]
         Viewer[Grounded Document Viewer with Source Highlighting]
         Speech[Web SpeechSynthesis Audio Engine]
     end
