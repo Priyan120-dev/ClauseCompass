@@ -164,11 +164,5 @@ Push to GitHub; the included [`render.yaml`](file:///c:/Users/Akira/Downloads/Cl
 
 ---
 
-## Demo Video Script (2 Minutes)
-
-- **0:00 - 0:25 (The Problem)**: "Signing a contract is intimidating. You don't know what traps are buried inside, and general chatbots hallucinate fake protections. Meet ClauseCompass."
-- **0:25 - 0:50 (Understand Tab)**: Load the bundled Rental Lease sample. Select role "Tenant". Click "Analyze & Verify". Show the 85.7% Verification Score, the 🔴 High Risk flags (10% late fee, unannounced landlord entry, wear-and-tear deposit deductions), and click "Show source" to watch the viewer jump and highlight the exact text.
-- **0:50 - 1:15 (Missing Clauses)**: Scroll to the Missing Clauses section. Show that "Rent Increase Notice & Cap" is flagged as `NOT STATED IN CONTRACT` with the exact question to ask the landlord.
-- **1:15 - 1:35 (Ask Tab)**: Ask "Are pets allowed?". Point out the honest `NOT_DETERMINABLE` badge—no hallucination. Ask "Can the landlord enter without notice?", showing the `ANSWERED` status and verified quote.
 - **1:35 - 1:50 (Compare Tab)**: Switch to Compare. Load Freelance V1 vs V2. Show the aligned diffs: Net-30 $\rightarrow$ Net-15 (Contractor benefits), IP ownership transfer upon payment, and the newly added 25% kill fee.
 - **1:50 - 2:00 (Action Outputs & Wrap-Up)**: Export the `.ics` calendar deadline alarms. Conclude: "ClauseCompass: Grounded, verified legal information you can trust."
