@@ -1,0 +1,30 @@
+INDEPENDENT CONTRACTOR CONSULTING AGREEMENT (VERSION 2.0 - REVISED)
+
+This Consulting Agreement ("Agreement") is dated February 1, 2025, by and between NovaTech Solutions Inc. ("Client"), and Jordan Lee ("Contractor").
+
+1. SCOPE OF SERVICES
+Contractor shall perform full-stack software development, architectural review, and technical design services ("Services") as specified in Schedule A. Contractor shall devote up to 80 hours per month towards project deliverables.
+
+2. COMPENSATION AND PAYMENT TERMS
+Client shall compensate Contractor at the rate of $120.00 USD per hour. Contractor shall invoice Client bi-weekly. Client shall pay all approved invoices within fifteen (15) calendar days of invoice receipt ("Net-15"). Any late payments shall accrue interest at the rate of 1.5% per month or the maximum rate permitted by law.
+
+3. REVISIONS AND ACCEPTANCE
+Deliverables shall be deemed accepted unless Client provides written objection within five (5) business days of delivery. Contractor shall provide up to two (2) rounds of minor bug fixes or cosmetic revisions at no additional charge. Any subsequent rounds or out-of-scope revisions shall be billed at $150.00 USD per hour.
+
+4. INTELLECTUAL PROPERTY RIGHTS
+All code, designs, inventions, documentation, and work product developed by Contractor under this Agreement ("Work Product") shall remain the intellectual property of Contractor until Client has delivered full and final payment for all outstanding invoices. Upon verified receipt of payment in full, Contractor irrevocably assigns all worldwide copyright and patent rights to Client.
+
+5. MUTUAL CONFIDENTIALITY
+Both parties agree to hold each other's proprietary trade secrets, technical designs, and financial information in strict confidence and shall not disclose such information to any third party for a period of two (2) years following termination.
+
+6. WARRANTIES AND REMEDIES
+Contractor warrants that the Work Product will conform to specifications and be free of critical defects for ninety (90) days following final delivery. Contractor's sole liability and Client's exclusive remedy for breach of warranty shall be re-performance of defective code.
+
+7. TERMINATION AND EARLY CANCELLATION FEE
+Either party may terminate this Agreement without cause upon providing thirty (30) calendar days written notice. In the event of termination by Client without cause, Client shall pay Contractor for all hours worked to date plus a cancellation fee equal to twenty-five percent (25%) of the remaining scheduled project fees.
+
+8. MUTUAL LIMITATION OF LIABILITY
+Neither party's aggregate liability to the other arising out of or related to this Agreement shall exceed the total fees actually paid to Contractor under this Agreement. In no event shall either party be liable for incidental, indirect, or punitive damages.
+
+9. NON-SOLICITATION
+During the term of this Agreement and for twelve (12) months thereafter, Client agrees not to directly or indirectly solicit, recruit, or hire any employees, contractors, or subcontractors of Contractor without prior written consent.

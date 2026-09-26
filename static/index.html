@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ClauseCompass: GenAI-powered legal-information assistant with deterministic quote verification and grounded navigation.">
+  <title>ClauseCompass | Grounded Legal Information Assistant</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <!-- Accessibility Skip Link -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Demo Mode Banner (shown when demo_mode is active) -->
+  <div id="demo-banner" class="demo-banner" role="status" aria-live="polite" hidden>
+    <div class="demo-banner-content">
+      <span class="demo-badge">DEMO MODE</span>
+      <span>Operating offline with synthetic pre-verified legal analyses. No API key required.</span>
+    </div>
+  </div>
+
+  <!-- Header Banner & Disclaimer -->
+  <header class="app-header" role="banner">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-logo" aria-hidden="true">🧭</div>
+        <div class="brand-text">
+          <h1>ClauseCompass</h1>
+          <p class="tagline">Grounded Legal Information Assistant</p>
+        </div>
+      </div>
+
+      <!-- Quick Accessibility & Theme Controls -->
+      <div class="header-controls" aria-label="Accessibility and theme options">
+        <div class="font-controls" role="group" aria-label="Adjust font size">
+          <button id="font-decrease-btn" class="icon-btn" title="Decrease text size" aria-label="Decrease font size">A-</button>
+          <button id="font-reset-btn" class="icon-btn" title="Reset text size" aria-label="Reset font size">A</button>
+          <button id="font-increase-btn" class="icon-btn" title="Increase text size" aria-label="Increase font size">A+</button>
+        </div>
+        <button id="theme-toggle-btn" class="icon-btn" title="Toggle dark / light theme" aria-label="Toggle dark mode">
+          <span id="theme-icon" aria-hidden="true">🌙</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mandatory Legal Disclaimer Banner -->
+    <div class="disclaimer-bar" role="note">
+      <span class="disclaimer-icon" aria-hidden="true">⚖️</span>
+      <strong>Notice:</strong> ClauseCompass provides objective legal <em>information</em> for educational and review purposes. It does <strong>not</strong> provide legal advice.
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="tabs-nav" role="navigation" aria-label="Main Navigation">
+    <div class="nav-container" role="tablist">
+      <button id="tab-understand" class="tab-btn active" role="tab" aria-selected="true" aria-controls="panel-understand" tabindex="0">
+        <span aria-hidden="true">📖</span> 1. Understand
+      </button>
+      <button id="tab-ask" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-ask" tabindex="-1">
+        <span aria-hidden="true">💬</span> 2. Ask Grounded Q&A
+      </button>
+      <button id="tab-compare" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-compare" tabindex="-1">
+        <span aria-hidden="true">⚖️</span> 3. Compare Versions
+      </button>
+    </div>
+  </nav>
+
+  <!-- Live Announcement Region for Screen Readers -->
+  <div id="sr-announcer" class="sr-only" role="status" aria-live="polite"></div>
+
+  <!-- Main Content Region -->
+  <main id="main-content" class="main-content" role="main">
+
+    <!-- ==================== TAB 1: UNDERSTAND ==================== -->
+    <section id="panel-understand" class="tab-panel active" role="tabpanel" aria-labelledby="tab-understand">
+      
+      <!-- Input Controls Card -->
+      <div class="card input-card">
+        <div class="card-header">
+          <h2>Upload or Select Contract</h2>
+          <div class="sample-pills" role="group" aria-label="Quick Load Samples">
+            <span class="pill-label">Samples:</span>
+            <button id="load-sample-rental" class="pill-btn" type="button">Rental Lease</button>
+            <button id="load-sample-freelance-v1" class="pill-btn" type="button">Freelance V1</button>
+            <button id="load-sample-freelance-v2" class="pill-btn" type="button">Freelance V2</button>
+          </div>
+        </div>
+
+        <form id="analyze-form" class="form-grid">
+          <!-- Document Upload / Paste -->
+          <div class="form-group col-full">
+            <label for="doc-file-input">Upload Document (PDF, DOCX, TXT - max 5 MB)</label>
+            <input type="file" id="doc-file-input" accept=".pdf,.docx,.txt,.md" aria-describedby="file-hint">
+            <span id="file-hint" class="input-hint">Or paste contract text directly below:</span>
+            <textarea id="doc-text-input" rows="7" placeholder="Paste full agreement text here..." aria-label="Contract text"></textarea>
+          </div>
+
+          <!-- Configuration Controls -->
+          <div class="form-group col-3">
+            <label for="role-select">Your Role in Contract:</label>
+            <select id="role-select" name="role">
+              <option value="tenant" selected>Tenant (Renting)</option>
+              <option value="landlord">Landlord (Property Owner)</option>
+              <option value="freelancer">Freelancer / Contractor</option>
+              <option value="client">Client / Hiring Company</option>
+              <option value="employee">Employee</option>
+              <option value="employer">Employer</option>
+              <option value="generic">General / Neutral</option>
+            </select>
+          </div>
+
+          <div class="form-group col-3">
+            <label for="doctype-select">Document Type:</label>
+            <select id="doctype-select" name="doc_type">
+              <option value="rental" selected>Residential Rental Agreement</option>
+              <option value="freelance">Freelance Consulting Agreement</option>
+              <option value="employment">Employment Contract</option>
+              <option value="nda">Non-Disclosure Agreement (NDA)</option>
+              <option value="generic">Other / General Agreement</option>
+            </select>
+          </div>
+
+          <div class="form-group col-3">
+            <label for="lang-select">Language:</label>
+            <select id="lang-select" name="language">
+              <option value="en" selected>English</option>
+              <option value="ta">Tamil (தமிழ்)</option>
+              <option value="hi">Hindi (हिन्दी)</option>
+            </select>
+          </div>
+
+          <div class="form-group col-2">
+            <label for="reading-select">Reading Level:</label>
+            <select id="reading-select" name="reading_level">
+              <option value="simple">Simple (Plain English 8th-grade)</option>
+              <option value="standard" selected>Standard (Professional)</option>
+            </select>
+          </div>
+
+          <div class="form-group col-2 checkbox-group">
+            <input type="checkbox" id="pii-mask-toggle" name="pii_mask">
+            <label for="pii-mask-toggle">Mask Personally Identifiable Info (PII)</label>
+          </div>
+
+          <!-- Submit / Action Bar -->
+          <div class="form-actions col-full">
+            <button type="submit" id="analyze-btn" class="btn btn-primary">
+              <span class="btn-icon" aria-hidden="true">🔍</span> Analyze & Verify Contract
+            </button>
+            <button type="button" id="clear-btn" class="btn btn-secondary">Clear</button>
+          </div>
+        </form>
+
+        <!-- Progress Bar (SSE Connected) -->
+        <div id="progress-container" class="progress-box" hidden aria-live="polite">
+          <div class="progress-header">
+            <span id="progress-status-text">Analyzing document...</span>
+            <span id="progress-percent">0%</span>
+          </div>
+          <div class="progress-track">
+            <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analysis Results Area -->
+      <div id="analysis-results" class="results-container" hidden>
+        
+        <!-- Scorecard & Executive Metrics -->
+        <div class="metrics-grid">
+          <div class="metric-card score-card">
+            <div class="metric-label">Deterministic Verification Score</div>
+            <div id="metric-verification-score" class="metric-value">--%</div>
+            <div class="metric-sub">Pure Python substring verification of all cited evidence</div>
+          </div>
+
+          <div class="metric-card high-risk-card">
+            <div class="metric-label">High Risk Clauses</div>
+            <div id="metric-high-risk" class="metric-value risk-high-text">0</div>
+            <div class="metric-sub">Unfavorable or atypical obligations for your role</div>
+          </div>
+
+          <div class="metric-card med-risk-card">
+            <div class="metric-label">Medium Risk</div>
+            <div id="metric-med-risk" class="metric-value risk-med-text">0</div>
+            <div class="metric-sub">Standard terms requiring attention</div>
+          </div>
+
+          <div class="metric-card low-risk-card">
+            <div class="metric-label">Low Risk</div>
+            <div id="metric-low-risk" class="metric-value risk-low-text">0</div>
+            <div class="metric-sub">Balanced or standard clauses</div>
+          </div>
+        </div>
+
+        <!-- Action Exports Toolbar -->
+        <div class="action-toolbar" role="toolbar" aria-label="Export Actions">
+          <span class="toolbar-title">Action Outputs:</span>
+          <button id="export-ics-btn" class="btn btn-outline" type="button">
+            <span aria-hidden="true">📅</span> Export Deadlines (.ICS)
+          </button>
+          <button id="export-brief-btn" class="btn btn-outline" type="button">
+            <span aria-hidden="true">📝</span> Lawyer Questions Brief
+          </button>
+          <button id="export-md-btn" class="btn btn-outline" type="button">
+            <span aria-hidden="true">📄</span> Markdown Report
+          </button>
+          <button id="print-view-btn" class="btn btn-outline" type="button">
+            <span aria-hidden="true">🖨️</span> Print View
+          </button>
+        </div>
+
+        <!-- Dual Column View: Findings & Document Viewer -->
+        <div class="findings-layout">
+          
+          <!-- Left Column: Clause Findings & Missing Clauses -->
+          <div class="findings-col">
+            
+            <!-- Section: Analyzed Clauses -->
+            <div class="section-heading">
+              <h3>Analyzed Clauses (<span id="total-clauses-count">0</span>)</h3>
+              <div class="filter-pills" role="group" aria-label="Filter clauses by risk">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="high">High Risk</button>
+                <button class="filter-btn" data-filter="medium">Medium</button>
+                <button class="filter-btn" data-filter="low">Low</button>
+              </div>
+            </div>
+
+            <div id="clauses-list" class="clauses-feed" role="feed" aria-label="Analyzed Clauses">
+              <!-- Clause Cards Rendered Dynamically -->
+            </div>
+
+            <!-- Section: Missing Clauses Checklist -->
+            <div class="section-heading">
+              <h3>Standard Clauses Checklist</h3>
+              <span class="section-subtitle">Deterministic check for standard terms expected in this agreement type</span>
+            </div>
+            <div id="missing-clauses-list" class="missing-clauses-feed">
+              <!-- Missing Clause Cards Rendered Dynamically -->
+            </div>
+          </div>
+
+          <!-- Right Column: Interactive Grounded Document Viewer -->
+          <div class="document-viewer-col">
+            <div class="viewer-header">
+              <h3>Grounded Document Viewer</h3>
+              <span class="viewer-hint">Click "Show source" on any finding to highlight verbatim quote</span>
+            </div>
+            <div id="document-paragraphs-viewer" class="document-viewer" tabindex="0" role="region" aria-label="Original Document Text">
+              <!-- Paragraphs with stable IDs rendered dynamically -->
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: ASK GROUNDED Q&A ==================== -->
+    <section id="panel-ask" class="tab-panel" role="tabpanel" aria-labelledby="tab-ask" hidden>
+      <div class="card qa-card">
+        <div class="card-header">
+          <h2>Ask Questions About Your Document</h2>
+          <p class="card-desc">Every answer is strictly grounded in the document text with verified citations. If unmentioned, it reports "Cannot be determined from this document."</p>
+        </div>
+
+        <form id="qa-form" class="qa-form">
+          <div class="qa-input-row">
+            <label for="qa-question-input" class="sr-only">Ask a question about the contract</label>
+            <input type="text" id="qa-question-input" placeholder="e.g., Can the landlord enter without notice? What is the deposit return timeline?" required>
+            <button type="submit" id="qa-submit-btn" class="btn btn-primary">
+              <span aria-hidden="true">🔍</span> Ask Question
+            </button>
+          </div>
+          
+          <div class="quick-questions" role="group" aria-label="Suggested Questions">
+            <span class="quick-label">Try asking:</span>
+            <button type="button" class="quick-q-btn" data-q="Can the landlord enter the apartment without advance notice?">Landlord entry without notice?</button>
+            <button type="button" class="quick-q-btn" data-q="What deductions can be made from my security deposit and when is it returned?">Deposit return & deductions?</button>
+            <button type="button" class="quick-q-btn" data-q="What is the penalty if I need to terminate the lease early?">Early termination penalty?</button>
+            <button type="button" class="quick-q-btn" data-q="Are pets like dogs or cats allowed in the building?">Are pets allowed? (Unmentioned check)</button>
+          </div>
+        </form>
+
+        <div id="qa-loading" class="qa-loading" hidden aria-live="polite">
+          <div class="spinner" aria-hidden="true"></div>
+          <span>Retrieving relevant paragraphs and verifying citations...</span>
+        </div>
+
+        <div id="qa-response-box" class="qa-response-box" hidden>
+          <!-- Dynamic Q&A Response Rendered Here -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: COMPARE VERSIONS ==================== -->
+    <section id="panel-compare" class="tab-panel" role="tabpanel" aria-labelledby="tab-compare" hidden>
+      <div class="card compare-card">
+        <div class="card-header">
+          <h2>Compare Two Document Versions</h2>
+          <p class="card-desc">Aligns clauses by functional category. Detects added, removed, and modified clauses with side-by-side evidence and risk delta.</p>
+        </div>
+
+        <div class="compare-samples-row">
+          <button id="load-compare-samples-btn" class="btn btn-outline" type="button">
+            Load Freelance V1 vs Freelance V2 (Sample Diff)
+          </button>
+        </div>
+
+        <form id="compare-form" class="compare-grid">
+          <div class="form-group compare-col">
+            <label for="compare-doc-a">Document A (Original Version):</label>
+            <textarea id="compare-doc-a" rows="10" placeholder="Paste Document A text here..." required></textarea>
+          </div>
+          <div class="form-group compare-col">
+            <label for="compare-doc-b">Document B (Revised Version):</label>
+            <textarea id="compare-doc-b" rows="10" placeholder="Paste Document B text here..." required></textarea>
+          </div>
+
+          <div class="form-actions col-full">
+            <button type="submit" id="compare-submit-btn" class="btn btn-primary">
+              <span aria-hidden="true">⚖️</span> Compare Versions & Highlight Risk Delta
+            </button>
+          </div>
+        </form>
+
+        <div id="compare-loading" class="qa-loading" hidden aria-live="polite">
+          <div class="spinner" aria-hidden="true"></div>
+          <span>Aligning clauses and calculating version deltas...</span>
+        </div>
+
+        <div id="compare-results" class="compare-results" hidden>
+          <!-- Dynamic Compare Items Rendered Here -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer" role="contentinfo">
+    <div class="footer-container">
+      <p>ClauseCompass &bull; GenAI Legal Information Assistant &bull; Built with FastAPI, Pydantic & Google Gemini</p>
+      <p class="footer-disclaimer">General information only. Always consult a licensed attorney for specific legal matters.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>

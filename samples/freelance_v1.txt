@@ -1,0 +1,27 @@
+INDEPENDENT CONTRACTOR CONSULTING AGREEMENT (VERSION 1.0)
+
+This Consulting Agreement ("Agreement") is dated January 15, 2025, by and between NovaTech Solutions Inc. ("Client"), and Jordan Lee ("Contractor").
+
+1. SCOPE OF SERVICES
+Contractor shall perform full-stack software development and technical design services ("Services") as specified in Schedule A. Contractor shall devote up to 80 hours per month towards project deliverables.
+
+2. COMPENSATION AND PAYMENT TERMS
+Client shall compensate Contractor at the rate of $120.00 USD per hour. Contractor shall invoice Client bi-weekly. Client shall pay all approved invoices within thirty (30) calendar days of invoice receipt ("Net-30"). If payment is delayed, Contractor may suspend services after ten (10) days notice.
+
+3. REVISIONS AND ACCEPTANCE
+Deliverables shall be deemed accepted unless Client provides written objection within five (5) business days of delivery. Contractor shall provide up to two (2) rounds of minor bug fixes or cosmetic revisions at no additional charge.
+
+4. INTELLECTUAL PROPERTY RIGHTS
+All code, designs, inventions, documentation, and work product developed or conceived by Contractor under this Agreement ("Work Product") shall become the immediate and exclusive property of Client upon creation, as a work made for hire, regardless of whether full payment for said services has been received by Contractor. Contractor assigns all worldwide copyright and patent rights to Client.
+
+5. CONFIDENTIALITY
+Contractor agrees to hold Client's proprietary business plans, technical designs, and customer information in strict confidence and shall not disclose such information to any third party for a period of two (2) years following termination.
+
+6. WARRANTIES AND REMEDIES
+Contractor warrants that the Work Product will conform to specifications and be free of critical defects for ninety (90) days following final delivery. Contractor's sole liability and Client's exclusive remedy for breach of warranty shall be re-performance of defective code.
+
+7. TERMINATION
+Either party may terminate this Agreement without cause upon providing fourteen (14) calendar days written notice. In the event of termination, Client shall pay Contractor for all approved hours worked prior to the effective date of termination.
+
+8. LIMITATION OF LIABILITY
+Contractor's aggregate liability to Client arising out of or related to this Agreement shall be strictly limited to the total fees actually received by Contractor under this Agreement during the three (3) months preceding the incident. Neither party shall be liable for consequential or indirect damages.
