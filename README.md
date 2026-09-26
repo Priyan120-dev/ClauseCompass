@@ -163,6 +163,3 @@ gcloud run deploy clausecompass \
 Push to GitHub; the included [`render.yaml`](file:///c:/Users/Akira/Downloads/ClauseCompass/render.yaml) automatically builds and starts the service using `uvicorn app.main:app --host 0.0.0.0 --port $PORT`.
 
 ---
-
-- **1:35 - 1:50 (Compare Tab)**: Switch to Compare. Load Freelance V1 vs V2. Show the aligned diffs: Net-30 $\rightarrow$ Net-15 (Contractor benefits), IP ownership transfer upon payment, and the newly added 25% kill fee.
-- **1:50 - 2:00 (Action Outputs & Wrap-Up)**: Export the `.ics` calendar deadline alarms. Conclude: "ClauseCompass: Grounded, verified legal information you can trust."
