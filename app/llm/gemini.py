@@ -1,4 +1,5 @@
 """Google Gemini LLM client implementation using the google-genai SDK."""
+import asyncio
 import json
 import logging
 
@@ -90,7 +91,8 @@ class GeminiClient(LLMClient):
         )
 
         try:
-            response = self.client.models.generate_content(
+            response = await asyncio.to_thread(
+                self.client.models.generate_content,
                 model=self.model,
                 contents=prompt,
                 config=types.GenerateContentConfig(
@@ -182,7 +184,8 @@ class GeminiClient(LLMClient):
         )
 
         try:
-            response = self.client.models.generate_content(
+            response = await asyncio.to_thread(
+                self.client.models.generate_content,
                 model=self.model,
                 contents=prompt,
                 config=types.GenerateContentConfig(
@@ -256,7 +259,8 @@ class GeminiClient(LLMClient):
         )
 
         try:
-            response = self.client.models.generate_content(
+            response = await asyncio.to_thread(
+                self.client.models.generate_content,
                 model=self.model,
                 contents=prompt,
                 config=types.GenerateContentConfig(

@@ -178,6 +178,13 @@ CHECKLISTS: dict[str, list[dict[str, Any]]] = {
 }
 
 
+# Precompile checklist regex patterns for efficient search across paragraphs
+_COMPILED_CHECKLIST_PATTERNS: dict[str, list[list[re.Pattern]]] = {
+    dt: [[re.compile(kw, re.IGNORECASE) for kw in item["keywords"]] for item in items]
+    for dt, items in CHECKLISTS.items()
+}
+
+
 def check_missing_clauses(
     doc_type: str,
     clauses: list[ClauseAnalysis],
@@ -189,23 +196,24 @@ def check_missing_clauses(
         dt_key = "generic"
 
     checklist = CHECKLISTS[dt_key]
+    compiled_patterns = _COMPILED_CHECKLIST_PATTERNS.get(dt_key, [])
     results: list[MissingClauseItem] = []
 
-    for item in checklist:
+    for idx, item in enumerate(checklist):
         name = item["name"]
         cat = item["category"]
-        keywords = item["keywords"]
+        patterns = compiled_patterns[idx] if idx < len(compiled_patterns) else [re.compile(kw, re.IGNORECASE) for kw in item["keywords"]]
         why = item["why_it_matters"]
         ask = item["question_to_ask"]
 
         found_pids: list[str] = []
         found_excerpt: str | None = None
 
-        # 1. Search paragraphs for matching regexes
+        # 1. Search paragraphs for matching precompiled regexes
         for p in paragraphs:
             p_text = p.text
-            for kw in keywords:
-                m = re.search(kw, p_text, re.IGNORECASE)
+            for pat in patterns:
+                m = pat.search(p_text)
                 if m:
                     if p.paragraph_id not in found_pids:
                         found_pids.append(p.paragraph_id)

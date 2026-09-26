@@ -27,11 +27,15 @@ class AnalysisLRUCache:
     def __init__(self, capacity: int = 100):
         self.capacity = capacity
         self.cache: OrderedDict[str, DocumentAnalysisResponse] = OrderedDict()
+        self.hits: int = 0
+        self.misses: int = 0
 
     def get(self, key: str) -> DocumentAnalysisResponse | None:
         if key in self.cache:
             self.cache.move_to_end(key)
+            self.hits += 1
             return self.cache[key]
+        self.misses += 1
         return None
 
     def put(self, key: str, value: DocumentAnalysisResponse) -> None:
@@ -40,6 +44,15 @@ class AnalysisLRUCache:
         self.cache[key] = value
         if len(self.cache) > self.capacity:
             self.cache.popitem(last=False)
+
+    def stats(self) -> dict[str, int]:
+        """Return cache capacity, current size, hits, and misses."""
+        return {
+            "capacity": self.capacity,
+            "size": len(self.cache),
+            "hits": self.hits,
+            "misses": self.misses,
+        }
 
     def clear(self) -> None:
         self.cache.clear()
@@ -74,7 +87,15 @@ async def analyze_document_pipeline(
     if use_cache:
         cached = analysis_cache.get(cache_key)
         if cached:
+            logger.info(
+                f"Analysis LRU cache HIT for doc_id={doc_id[:12]} "
+                f"(hits={analysis_cache.hits}, misses={analysis_cache.misses})"
+            )
             return cached
+        logger.info(
+            f"Analysis LRU cache MISS for doc_id={doc_id[:12]} "
+            f"(hits={analysis_cache.hits}, misses={analysis_cache.misses})"
+        )
 
     # 2. If PII masking is requested, mask text before chunking
     processed_pages: list[tuple[int, str]] = []

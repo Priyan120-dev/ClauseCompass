@@ -9,21 +9,27 @@ from app.models.schemas import (
     VerificationStatusEnum,
 )
 
+_DQUOTE_RE = re.compile(r'[\u201c\u201d\u201e\u00ab\u00bb\u2033]')
+_SQUOTE_RE = re.compile(r'[\u2018\u2019\u201a\u2039\u203a\u2032]')
+_DASH_RE = re.compile(r'[\u2013\u2014\u2015\u2212]')
+_WHITESPACE_RE = re.compile(r'\s+')
+_SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
+
 
 def normalize_quote_text(text: str) -> str:
     """Normalize quotes, dashes, and whitespace for robust deterministic matching."""
     if not text:
         return ""
     # Normalize unicode double quotes
-    text = re.sub(r'[\u201c\u201d\u201e\u00ab\u00bb\u2033]', '"', text)
+    text = _DQUOTE_RE.sub('"', text)
     # Normalize unicode single quotes / apostrophes
-    text = re.sub(r'[\u2018\u2019\u201a\u2039\u203a\u2032]', "'", text)
+    text = _SQUOTE_RE.sub("'", text)
     # Normalize dashes and hyphens
-    text = re.sub(r'[\u2013\u2014\u2015\u2212]', '-', text)
+    text = _DASH_RE.sub('-', text)
     # Normalize non-breaking spaces
     text = text.replace('\xa0', ' ').replace('\u200b', '')
     # Normalize whitespace
-    text = re.sub(r'\s+', ' ', text)
+    text = _WHITESPACE_RE.sub(' ', text)
     return text.strip()
 
 
@@ -39,15 +45,22 @@ def fuzzy_repair_quote(norm_quote: str, target_para_text: str, threshold: float 
 
     best_ratio = 0.0
     best_span = ""
+    lower_quote = norm_quote.lower()
 
     # Check sentence matches first
-    sentences = re.split(r"(?<=[.!?])\s+", target_para_text)
+    sentences = _SENTENCE_SPLIT_RE.split(target_para_text)
     for sent in sentences:
         s_norm = normalize_quote_text(sent)
-        ratio = difflib.SequenceMatcher(None, norm_quote.lower(), s_norm.lower()).ratio()
+        matcher = difflib.SequenceMatcher(None, lower_quote, s_norm.lower())
+        # Fast filter before expensive full ratio calculation
+        if matcher.real_quick_ratio() < max(threshold, best_ratio):
+            continue
+        ratio = matcher.ratio()
         if ratio > best_ratio:
             best_ratio = ratio
             best_span = sent.strip()
+            if best_ratio >= 1.0:
+                return best_span, best_ratio
 
     # Also test sliding window of words (lengths n_words-1, n_words, n_words+1)
     for window_size in (n_words - 1, n_words, n_words + 1):
@@ -55,10 +68,15 @@ def fuzzy_repair_quote(norm_quote: str, target_para_text: str, threshold: float 
             continue
         for i in range(len(words_para) - window_size + 1):
             candidate = " ".join(words_para[i : i + window_size])
-            ratio = difflib.SequenceMatcher(None, norm_quote.lower(), candidate.lower()).ratio()
+            matcher = difflib.SequenceMatcher(None, lower_quote, candidate.lower())
+            if matcher.real_quick_ratio() < max(threshold, best_ratio):
+                continue
+            ratio = matcher.ratio()
             if ratio > best_ratio:
                 best_ratio = ratio
                 best_span = candidate
+                if best_ratio >= 1.0:
+                    return best_span, best_ratio
 
     if best_ratio >= threshold:
         return best_span, best_ratio

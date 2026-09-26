@@ -78,7 +78,7 @@ async def ingest_document(
     """Ingest document from uploaded file or pasted string and return stable chunks."""
     if file:
         content = await file.read()
-        pages = extract_text_from_bytes(file.filename or "uploaded.txt", content)
+        pages = await asyncio.to_thread(extract_text_from_bytes, file.filename or "uploaded.txt", content)
     elif raw_text and raw_text.strip():
         pages = extract_text_from_raw_string(raw_text)
     else:
@@ -107,7 +107,7 @@ async def analyze_document_endpoint(
     """Analyze a legal contract, verify quotes, and detect missing clauses."""
     if file:
         content = await file.read()
-        pages = extract_text_from_bytes(file.filename or "uploaded.txt", content)
+        pages = await asyncio.to_thread(extract_text_from_bytes, file.filename or "uploaded.txt", content)
     elif raw_text and raw_text.strip():
         pages = extract_text_from_raw_string(raw_text)
     else:
@@ -152,7 +152,7 @@ async def analyze_document_stream(
         await asyncio.sleep(0.05)
 
         if content:
-            pages = extract_text_from_bytes(filename, content)
+            pages = await asyncio.to_thread(extract_text_from_bytes, filename, content)
         elif raw_text and raw_text.strip():
             pages = extract_text_from_raw_string(raw_text)
         else:

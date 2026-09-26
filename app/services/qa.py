@@ -2,7 +2,8 @@
 import logging
 import math
 import re
-from collections import Counter
+from collections import Counter, OrderedDict
+from functools import lru_cache
 
 from app.llm.base import LLMClient
 from app.llm.fake import FakeLLMClient
@@ -35,9 +36,75 @@ STOP_WORDS = {
 }
 
 
+_TOKEN_RE = re.compile(r"\b[a-zA-Z0-9$%'_-]+\b")
+
+
+@lru_cache(maxsize=4096)
 def tokenize(text: str) -> list[str]:
-    """Tokenize string into lowercase alphanumeric words."""
-    return [w for w in re.findall(r"\b[a-zA-Z0-9$%'_-]+\b", text.lower()) if w not in STOP_WORDS]
+    """Tokenize string into lowercase alphanumeric words (cached)."""
+    return [w for w in _TOKEN_RE.findall(text.lower()) if w not in STOP_WORDS]
+
+
+class CorpusIndex:
+    """Precomputed token and term frequency index for BM25 retrieval over a paragraph collection."""
+
+    __slots__ = ("paragraphs", "para_token_lists", "para_tf_list", "doc_freq", "total_len", "avg_len", "num_docs")
+
+    def __init__(self, paragraphs: list[ParagraphChunk]):
+        self.paragraphs = paragraphs
+        self.para_token_lists: list[list[str]] = []
+        self.para_tf_list: list[Counter] = []
+        self.doc_freq: Counter = Counter()
+        self.total_len: int = 0
+        self.num_docs: int = len(paragraphs)
+
+        for p in paragraphs:
+            tokens = tokenize(p.text)
+            self.para_token_lists.append(tokens)
+            self.total_len += len(tokens)
+            self.para_tf_list.append(Counter(tokens))
+            for unique_term in set(tokens):
+                self.doc_freq[unique_term] += 1
+
+        self.avg_len: float = self.total_len / max(1, self.num_docs)
+
+
+class CorpusIndexCache:
+    """LRU cache of pre-indexed document corpora to avoid repeated re-tokenization per session."""
+
+    def __init__(self, capacity: int = 32):
+        self.capacity = capacity
+        self.cache: OrderedDict[str, CorpusIndex] = OrderedDict()
+
+    def _make_key(self, paragraphs: list[ParagraphChunk]) -> str:
+        if not paragraphs:
+            return ""
+        p_first = paragraphs[0]
+        p_last = paragraphs[-1]
+        sample_hash = hash((
+            len(p_first.text),
+            len(p_last.text),
+            p_first.paragraph_id,
+            p_last.paragraph_id,
+            len(paragraphs),
+        ))
+        return f"{len(paragraphs)}:{p_first.paragraph_id}:{p_last.paragraph_id}:{sample_hash}"
+
+    def get_or_build(self, paragraphs: list[ParagraphChunk]) -> CorpusIndex:
+        if not paragraphs:
+            return CorpusIndex([])
+        key = self._make_key(paragraphs)
+        if key in self.cache:
+            self.cache.move_to_end(key)
+            return self.cache[key]
+        idx = CorpusIndex(paragraphs)
+        self.cache[key] = idx
+        if len(self.cache) > self.capacity:
+            self.cache.popitem(last=False)
+        return idx
+
+
+_corpus_cache = CorpusIndexCache(capacity=32)
 
 
 def retrieve_relevant_paragraphs(
@@ -45,7 +112,7 @@ def retrieve_relevant_paragraphs(
     paragraphs: list[ParagraphChunk],
     top_k: int = 5,
 ) -> list[ParagraphChunk]:
-    """Retrieve top-K most relevant paragraphs using BM25-style term scoring."""
+    """Retrieve top-K most relevant paragraphs using BM25-style term scoring with cached corpus."""
     if not paragraphs:
         return []
 
@@ -53,33 +120,23 @@ def retrieve_relevant_paragraphs(
     if not q_tokens:
         return paragraphs[:top_k]
 
-    doc_freq: Counter = Counter()
-    para_token_lists = []
-    total_len = 0
-
-    for p in paragraphs:
-        tokens = tokenize(p.text)
-        para_token_lists.append(tokens)
-        total_len += len(tokens)
-        for unique_term in set(tokens):
-            doc_freq[unique_term] += 1
-
-    num_docs = len(paragraphs)
-    avg_len = total_len / max(1, num_docs)
+    corpus = _corpus_cache.get_or_build(paragraphs)
+    num_docs = corpus.num_docs
+    avg_len = corpus.avg_len
     k1 = 1.5
     b = 0.75
 
     scored: list[tuple[float, ParagraphChunk]] = []
 
     for idx, p in enumerate(paragraphs):
-        p_tokens = para_token_lists[idx]
+        p_tokens = corpus.para_token_lists[idx]
         doc_len = len(p_tokens)
-        tf = Counter(p_tokens)
+        tf = corpus.para_tf_list[idx]
         score = 0.0
 
         for term in q_tokens:
             if term in tf:
-                df = doc_freq.get(term, 0)
+                df = corpus.doc_freq.get(term, 0)
                 idf = math.log((num_docs - df + 0.5) / (df + 0.5) + 1.0)
                 freq = tf[term]
                 tf_norm = (freq * (k1 + 1)) / (freq + k1 * (1 - b + b * (doc_len / max(1.0, avg_len))))

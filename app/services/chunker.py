@@ -3,13 +3,17 @@ import re
 
 from app.models.schemas import ParagraphChunk
 
+_SPACES_TABS_RE = re.compile(r"[ \t]+")
+_DOUBLE_NEWLINE_RE = re.compile(r"\n\s*\n+")
+_SUB_SECTION_RE = re.compile(r"(?=(?:^|\n)\s*(?:\d+\.|\bSECTION\s+\d+:|\bARTICLE\s+\d+:))")
+
 
 def normalize_whitespace(text: str) -> str:
     """Normalize repeated whitespace while keeping sentence structure clean."""
     # Replace non-breaking spaces and other unicode spaces
     text = text.replace("\xa0", " ").replace("\u200b", "")
-    # Normalize multiple spaces and tabs to single space
-    lines = [re.sub(r"[ \t]+", " ", line).strip() for line in text.splitlines()]
+    # Normalize multiple spaces and tabs to single space using precompiled regex
+    lines = [_SPACES_TABS_RE.sub(" ", line).strip() for line in text.splitlines()]
     return "\n".join(lines).strip()
 
 
@@ -23,8 +27,8 @@ def chunk_document(pages_text: list[tuple[int, str]]) -> list[ParagraphChunk]:
         if not normalized:
             continue
 
-        # Split on double newlines
-        raw_paras = re.split(r"\n\s*\n+", normalized)
+        # Split on double newlines using precompiled regex
+        raw_paras = _DOUBLE_NEWLINE_RE.split(normalized)
 
         for p_str in raw_paras:
             p_str = p_str.strip()
@@ -33,7 +37,7 @@ def chunk_document(pages_text: list[tuple[int, str]]) -> list[ParagraphChunk]:
 
             # If a paragraph is exceptionally long (e.g. > 1500 chars) and contains numbered sections, split further
             if len(p_str) > 1200:
-                sub_sections = re.split(r"(?=(?:^|\n)\s*(?:\d+\.|\bSECTION\s+\d+:|\bARTICLE\s+\d+:))", p_str)
+                sub_sections = _SUB_SECTION_RE.split(p_str)
                 if len(sub_sections) > 1:
                     for sub in sub_sections:
                         sub = sub.strip()

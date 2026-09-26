@@ -1,9 +1,6 @@
 """Document ingestion service for PDF, DOCX, TXT, and raw text."""
 import io
 
-from docx import Document
-from pypdf import PdfReader
-
 from app.security.validation import (
     detect_and_validate_format,
     validate_docx_content,
@@ -22,6 +19,7 @@ def extract_text_from_bytes(filename: str, content: bytes) -> list[tuple[int, st
 
     if file_type == "pdf":
         validate_pdf_pages(content)
+        from pypdf import PdfReader
         reader = PdfReader(io.BytesIO(content))
         pages_text: list[tuple[int, str]] = []
         for idx, page in enumerate(reader.pages, start=1):
@@ -32,6 +30,7 @@ def extract_text_from_bytes(filename: str, content: bytes) -> list[tuple[int, st
 
     elif file_type == "docx":
         validate_docx_content(content)
+        from docx import Document
         doc = Document(io.BytesIO(content))
         paragraphs: list[str] = []
         for p in doc.paragraphs:
